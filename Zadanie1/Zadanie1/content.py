@@ -56,7 +56,7 @@ def regularized_least_squares(x_train, y_train, M, regularization_lambda):
     designMatrix = np.array(design_matrix(x_train, M))
     dmTdm = designMatrix.transpose() @ designMatrix
     w = np.linalg.inv(dmTdm + regularization_lambda * np.identity(dmTdm.shape[0])) @ designMatrix.transpose() @ y_train
-    err = mean_squared_error(x_train, y_train, w) + regularization_lambda // 2 * np.square(w).sum()
+    err = mean_squared_error(x_train, y_train, w)
     return (w, err)
 
 def model_selection(x_train, y_train, x_val, y_val, M_values):
@@ -101,8 +101,7 @@ def regularized_model_selection(x_train, y_train, x_val, y_val, M, lambda_values
     ws = []
     trainErrors = []
     for lambdaVal in lambda_values:
-        w, _ = regularized_least_squares(x_train, y_train, M, lambdaVal)
-        err = mean_squared_error(x_train, y_train, w)
+        w, err = regularized_least_squares(x_train, y_train, M, lambdaVal)
         ws.append(w)
         trainErrors.append(err)
     bestWIndex = 0
