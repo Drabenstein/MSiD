@@ -71,20 +71,15 @@ def model_selection(x_train, y_train, x_val, y_val, M_values):
     i walidacyjnym
     '''
     ws = []
-    trainErr = []
+    trainErrors = []
+    valErrors = []
     for M in M_values:
         (w, err) = least_squares(x_train, y_train, M)
         ws.append(w)
-        trainErr.append(err)
-
-    bestWIndex = 0 
-    bestValErr = mean_squared_error(x_val, y_val, ws[bestWIndex])
-    for idx, w in enumerate(ws):
-        valErr = mean_squared_error(x_val, y_val, w)
-        if(valErr < bestValErr):
-            bestValErr = valErr
-            bestWIndex = idx
-    return (ws[bestWIndex], trainErr[bestWIndex], bestValErr)
+        trainErrors.append(err)
+        valErrors.append(mean_squared_error(x_val, y_val, w))
+    bestWIndex = np.argsort(valErrors)[0]
+    return (ws[bestWIndex], trainErrors[bestWIndex], valErrors[bestWIndex])
 
 def regularized_model_selection(x_train, y_train, x_val, y_val, M, lambda_values):
     '''
