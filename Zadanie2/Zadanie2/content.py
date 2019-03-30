@@ -53,7 +53,14 @@ def p_y_x_knn(y, k):
     :param k: liczba najbliższych sasiadow dla KNN
     :return: macierz prawdopodobieństw p(y|x) dla obiektów z "X" N1xM
     """
-    pass
+    results = []
+    for neighbours in y:
+        knn = neighbours[:k]
+        partResult = []
+        for i in range(knn.shape[0] - 1):
+            partResult.append(np.count_nonzero(knn == i) / k)
+        results.append(partResult)
+    return results
 
 
 def classification_error(p_y_x, y_true):
