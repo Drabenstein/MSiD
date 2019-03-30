@@ -101,6 +101,5 @@ def regularized_model_selection(x_train, y_train, x_val, y_val, M, lambda_values
         ws.append(w)
         trainErrors.append(err)
         valErrors.append(mean_squared_error(x_val, y_val, w))
-
     bestWIndex = np.argsort(valErrors)[0]
     return (ws[bestWIndex], trainErrors[bestWIndex], valErrors[bestWIndex], lambda_values[bestWIndex])
