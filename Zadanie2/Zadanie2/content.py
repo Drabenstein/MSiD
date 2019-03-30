@@ -17,7 +17,11 @@ def hamming_distance(X, X_train):
     :param X_train: zbiór obiektów do których porównujemy N2xD
     :return: macierz odległości pomiędzy obiektami z "X" i "X_train" N1xN2
     """
-    pass
+    result = []
+    for xi in X.toarray().astype(int):
+        partResult = [np.count_nonzero(xi != xj) for xj in X_train.toarray().astype(int)]
+        result.append(partResult)
+    return result
 
 
 def sort_train_labels_knn(Dist, y):
