@@ -36,7 +36,11 @@ def sort_train_labels_knn(Dist, y):
 
     Do sortowania użyj algorytmu mergesort.
     """
-    pass
+    result = []
+    for d in Dist:
+        sortedEtiquetesIndexes = np.argsort(d, -1, 'mergesort')
+        result.append([y[i] for i in sortedEtiquetesIndexes])
+    return result
 
 
 def p_y_x_knn(y, k):
