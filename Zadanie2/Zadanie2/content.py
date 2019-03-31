@@ -72,7 +72,13 @@ def classification_error(p_y_x, y_true):
     :param y_true: zbiór rzeczywistych etykiet klas 1xN
     :return: błąd klasyfikacji
     """
-    pass
+    modelErrors = 0
+    for idx, y in np.ndenumerate(y_true):
+        row = p_y_x[idx]
+        rowLen = len(row)
+        argmaxIndex = np.argmax(row[::-1])
+        modelErrors += 0 if rowLen - argmaxIndex - 1 == y else 1
+    return modelErrors / y_true.shape[0]
 
 
 def model_selection_knn(X_val, X_train, y_val, y_train, k_values):
