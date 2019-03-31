@@ -108,7 +108,10 @@ def estimate_a_priori_nb(y_train):
     :param y_train: etykiety dla danych treningowych 1xN
     :return: wektor prawdopodobieństw a priori p(y) 1xM
     """
-    pass
+    results = []
+    for k in np.unique(y_train):
+        results.append(np.count_nonzero(y_train == k) / y_train.shape[0])
+    return results
 
 
 def estimate_p_x_y_nb(X_train, y_train, a, b):
