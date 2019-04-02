@@ -55,12 +55,14 @@ def p_y_x_knn(y, k):
     """
     results = []
     for neighbours in y:
-        knn = neighbours[:k]
+        knn = np.array(neighbours[:k])
         partResult = []
-        for i in range(knn.shape[0] - 1):
-            partResult.append(np.count_nonzero(knn == i) / k)
+        for i in range(np.unique(neighbours).shape[0]):
+            count = np.count_nonzero(knn == i)
+            length = np.size(knn)
+            partResult.append(count / length)
         results.append(partResult)
-    return results
+    return np.array(results)
 
 
 def classification_error(p_y_x, y_true):
