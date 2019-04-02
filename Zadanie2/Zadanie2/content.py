@@ -99,7 +99,15 @@ def model_selection_knn(X_val, X_train, y_val, y_train, k_values):
         najniższy, a "errors" - lista wartości błędów dla kolejnych
         "k" z "k_values"
     """
-    pass
+    errors = []
+    for k in k_values:
+        distances = hamming_distance(X_val, X_train)
+        sorted = sort_train_labels_knn(distances, y_train)
+        pyx = p_y_x_knn(sorted, k)
+        error = classification_error(pyx, y_val)
+        errors.append(error)
+    bestIndex = np.argsort(errors)[0]
+    return (errors[bestIndex], k_values[bestIndex], errors)
 
 
 def estimate_a_priori_nb(y_train):
