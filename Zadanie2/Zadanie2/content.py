@@ -43,7 +43,7 @@ def sort_train_labels_knn(Dist, y):
     return np.array(result)
 
 
-def p_y_x_knn(y, k):
+def p_y_x_knn(y, k):    
     """
     Wyznacz rozkład prawdopodobieństwa p(y|x) każdej z klas dla obiektów
     ze zbioru testowego wykorzystując klasyfikator KNN wyuczony na danych
@@ -107,7 +107,7 @@ def model_selection_knn(X_val, X_train, y_val, y_train, k_values):
         error = classification_error(pyx, y_val)
         errors.append(error)
     bestIndex = np.argsort(errors)[0]
-    return (errors[bestIndex], k_values[bestIndex], errors)
+    return (errors[bestIndex], k_values[bestIndex], np.array(errors))
 
 
 def estimate_a_priori_nb(y_train):
@@ -135,8 +135,20 @@ def estimate_p_x_y_nb(X_train, y_train, a, b):
     :param b: parametr "b" rozkładu Beta
     :return: macierz prawdopodobieństw p(x|y) dla obiektów z "X_train" MxD.
     """
-    pass
-
+    results = []
+    for y in np.unique(y_train):
+        partResult = []
+        for horizontalIdx in range(X_train.shape[1]):
+            countNum = 0
+            for verticalIdx in range(X_train.shape[0]):
+                countNum += 1 if y_train[verticalIdx] == y and X_train[verticalIdx, horizontalIdx] == True else 0
+            numerator = countNum + a[0] - 1
+            countDenom = np.count_nonzero(y_train == y)
+            denominator = countDenom + a[0] + b[0] - 2
+            partResult.append(numerator / denominator)
+        results.append(partResult)
+    return np.array(results)
+            
 
 def p_y_x_nb(p_y, p_x_1_y, X):
     """
