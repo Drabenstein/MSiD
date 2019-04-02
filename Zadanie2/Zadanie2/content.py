@@ -76,7 +76,7 @@ def classification_error(p_y_x, y_true):
     """
     modelErrors = 0
     for idx, y in np.ndenumerate(y_true):
-        row = p_y_x[idx]
+        row = p_y_x[idx[0]]
         rowLen = len(row)
         argmaxIndex = np.argmax(row[::-1])
         modelErrors += 0 if rowLen - argmaxIndex - 1 == y else 1
