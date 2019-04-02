@@ -21,7 +21,7 @@ def hamming_distance(X, X_train):
     for xi in X.toarray().astype(int):
         partResult = [np.count_nonzero(xi != xj) for xj in X_train.toarray().astype(int)]
         result.append(partResult)
-    return result
+    return np.array(result)
 
 
 def sort_train_labels_knn(Dist, y):
@@ -40,7 +40,7 @@ def sort_train_labels_knn(Dist, y):
     for d in Dist:
         sortedEtiquetesIndexes = np.argsort(d, -1, 'mergesort')
         result.append([y[i] for i in sortedEtiquetesIndexes])
-    return result
+    return np.array(result)
 
 
 def p_y_x_knn(y, k):
