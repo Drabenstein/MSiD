@@ -121,7 +121,7 @@ def estimate_a_priori_nb(y_train):
     results = []
     for k in np.unique(y_train):
         results.append(np.count_nonzero(y_train == k) / y_train.shape[0])
-    return results
+    return np.array(results)
 
 
 def estimate_p_x_y_nb(X_train, y_train, a, b):
@@ -193,4 +193,17 @@ def model_selection_nb(X_train, X_val, y_train, y_val, a_values, b_values):
         iterowania najpierw po "a_values" [pętla zewnętrzna], a następnie
         "b_values" [pętla wewnętrzna]).
     """
-    pass
+    errors = []
+    a_b = []
+    for a in a_values:
+        a_array = np.array([int(x) for x in str(a)])
+        for b in b_values:
+            a_b.append((a, b))
+            p_y = estimate_a_priori_nb(y_train)   
+            b_array = np.array([int(x) for x in str(b)])
+            p_x_1_y = estimate_p_x_y_nb(X_train, y_train, a_array, b_array)
+            p_y_x = p_y_x_nb(p_y, p_x_1_y, X_val)
+            error = classification_error(p_y_x, y_val)
+            errors.append(error)
+    bestIndex = np.argsort(errors)[0]
+    return (errors[bestIndex], a_b[bestIndex][0], a_b[bestIndex][1], np.array(errors).reshape(3,3))
