@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------
 
 import numpy as np
-
+from datetime import datetime
 
 def hamming_distance(X, X_train):
     """
@@ -196,14 +196,19 @@ def model_selection_nb(X_train, X_val, y_train, y_val, a_values, b_values):
     errors = []
     a_b = []
     for a in a_values:
-        a_array = np.array([int(x) for x in str(a)])
+        partResult = []
+        a_array = np.array([a])
         for b in b_values:
             a_b.append((a, b))
-            p_y = estimate_a_priori_nb(y_train)   
-            b_array = np.array([int(x) for x in str(b)])
+            p_y = estimate_a_priori_nb(y_train)
+            b_array = np.array([b])
             p_x_1_y = estimate_p_x_y_nb(X_train, y_train, a_array, b_array)
             p_y_x = p_y_x_nb(p_y, p_x_1_y, X_val)
             error = classification_error(p_y_x, y_val)
-            errors.append(error)
-    bestIndex = np.argsort(errors)[0]
-    return (errors[bestIndex], a_b[bestIndex][0], a_b[bestIndex][1], np.array(errors).reshape(3,3))
+            partResult.append(error)
+        errors.append(partResult)
+    errors = np.array(errors)
+    bestIndex = np.argsort(errors, axis=None, kind='mergesort')[0]
+    bestYIndex = bestIndex // errors.shape[0]
+    bestXIndex = bestIndex % errors.shape[1]
+    return (errors[bestYIndex, bestXIndex], a_b[bestIndex][0], a_b[bestIndex][1], errors)
