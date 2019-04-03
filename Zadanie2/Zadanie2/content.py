@@ -160,7 +160,18 @@ def p_y_x_nb(p_y, p_x_1_y, X):
     :param X: dane dla których beda wyznaczone prawdopodobieństwa, macierz NxD
     :return: macierz prawdopodobieństw p(y|x) dla obiektów z "X" NxM
     """
-    pass
+    results = []
+    p_x_0_y = 1 - p_x_1_y
+    for idx in range(X.shape[0]):
+        partResult = []
+        for yIdx in range(p_y.shape[0]):
+            numerator = p_y[yIdx]
+            for xIdx in range(X.shape[1]):
+                numerator *= p_x_1_y[yIdx, xIdx] if X[idx, xIdx] == True else p_x_0_y[yIdx, xIdx]
+            partResult.append(numerator)
+        denominator = np.sum(partResult)
+        results.append([part / denominator for part in partResult])
+    return np.array(results)
 
 
 def model_selection_nb(X_train, X_val, y_train, y_val, a_values, b_values):
