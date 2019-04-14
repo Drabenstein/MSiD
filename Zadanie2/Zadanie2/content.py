@@ -1,13 +1,11 @@
 # --------------------------------------------------------------------------
-# ------------  Metody Systemowe i Decyzyjne w Informatyce  ----------------
+# ------------ Metody Systemowe i Decyzyjne w Informatyce ----------------
 # --------------------------------------------------------------------------
 #  Zadanie 2: k-NN i Naive Bayes
-#  autorzy: A. Gonczarek, J. Kaczmar, S. Zareba, P. Dąbrowski
+#  autorzy: A.  Gonczarek, J.  Kaczmar, S.  Zareba, P.  Dąbrowski
 #  2019
 # --------------------------------------------------------------------------
-
 import numpy as np
-from datetime import datetime
 
 def hamming_distance(X, X_train):
     """
@@ -17,11 +15,9 @@ def hamming_distance(X, X_train):
     :param X_train: zbiór obiektów do których porównujemy N2xD
     :return: macierz odległości pomiędzy obiektami z "X" i "X_train" N1xN2
     """
-    result = []
-    for xi in X.toarray().astype(int):
-        partResult = [np.count_nonzero(xi != xj) for xj in X_train.toarray().astype(int)]
-        result.append(partResult)
-    return np.array(result)
+    X_Array = X.toarray().astype(int)
+    X_Array_T = np.transpose(X_train.toarray()).astype(int)
+    return np.array(X_Array.shape[1] - X_Array @ X_Array_T - (1 - X_Array) @ (1 - X_Array_T))
 
 
 def sort_train_labels_knn(Dist, y):
@@ -36,11 +32,11 @@ def sort_train_labels_knn(Dist, y):
 
     Do sortowania użyj algorytmu mergesort.
     """
-    result = []
-    for d in Dist:
-        sortedEtiquetesIndexes = np.argsort(d, -1, 'mergesort')
-        result.append([y[i] for i in sortedEtiquetesIndexes])
-    return np.array(result)
+    def take(indexes, y):
+        return np.take(y, indexes)
+
+    sortedEtiquetesIndexes = np.argsort(Dist, 1, 'mergesort')
+    return np.apply_along_axis(take, 1, sortedEtiquetesIndexes, y)
 
 
 def p_y_x_knn(y, k):    
@@ -54,13 +50,10 @@ def p_y_x_knn(y, k):
     :return: macierz prawdopodobieństw p(y|x) dla obiektów z "X" N1xM
     """
     results = []
+    y_uniques_count = np.unique(y).shape[0]
     for neighbours in y:
         knn = np.array(neighbours[:k])
-        partResult = []
-        for i in range(np.unique(neighbours).shape[0]):
-            count = np.count_nonzero(knn == i)
-            length = np.size(knn)
-            partResult.append(count / length)
+        partResult = [np.count_nonzero(knn == i) / k for i in range(y_uniques_count)]
         results.append(partResult)
     return np.array(results)
 
@@ -100,14 +93,19 @@ def model_selection_knn(X_val, X_train, y_val, y_train, k_values):
         "k" z "k_values"
     """
     errors = []
-    for k in k_values:
-        distances = hamming_distance(X_val, X_train)
-        sorted = sort_train_labels_knn(distances, y_train)
-        pyx = p_y_x_knn(sorted, k)
+    distances = hamming_distance(X_val, X_train)
+    sorted = sort_train_labels_knn(distances, y_train)
+    bestIndex = 0
+    minError = np.inf
+    for i in range(np.size(k_values)):
+        pyx = p_y_x_knn(sorted, k_values[i])
         error = classification_error(pyx, y_val)
         errors.append(error)
-    bestIndex = np.argsort(errors)[0]
-    return (errors[bestIndex], k_values[bestIndex], np.array(errors))
+        if minError > error:
+            minError = error
+            bestIndex = i
+    #bestIndex = np.argsort(errors)[0]
+    return (minError, k_values[bestIndex], np.array(errors))
 
 
 def estimate_a_priori_nb(y_train):
@@ -118,10 +116,8 @@ def estimate_a_priori_nb(y_train):
     :param y_train: etykiety dla danych treningowych 1xN
     :return: wektor prawdopodobieństw a priori p(y) 1xM
     """
-    results = []
-    for k in np.unique(y_train):
-        results.append(np.count_nonzero(y_train == k) / y_train.shape[0])
-    return np.array(results)
+    y_count = y_train.shape[0]
+    return np.array([np.count_nonzero(y_train == k) / y_count for k in np.unique(y_train)])
 
 
 def estimate_p_x_y_nb(X_train, y_train, a, b):
@@ -136,19 +132,16 @@ def estimate_p_x_y_nb(X_train, y_train, a, b):
     :return: macierz prawdopodobieństw p(x|y) dla obiektów z "X_train" MxD.
     """
     results = []
-    for y in np.unique(y_train):
-        partResult = []
-        for horizontalIdx in range(X_train.shape[1]):
-            countNum = 0
-            for verticalIdx in range(X_train.shape[0]):
-                countNum += 1 if y_train[verticalIdx] == y and X_train[verticalIdx, horizontalIdx] == True else 0
-            numerator = countNum + a[0] - 1
-            countDenom = np.count_nonzero(y_train == y)
-            denominator = countDenom + a[0] + b[0] - 2
-            partResult.append(numerator / denominator)
-        results.append(partResult)
+    X_array = X_train.toarray()
+    y_unique_count = np.unique(y_train).shape[0]
+    for k in range(y_unique_count):
+        y_k_occurances = np.equal(y_train, k)
+        y_k_occurances_count = np.sum(y_k_occurances)
+        np.apply_along_axis(lambda x_row, cat_mask: np.bitwise_and(x_row,cat_mask), 0, X_array, y_k_occurances)
+        sum_i_cat = np.sum(, 0)
+        results.append(np.divide((sum_i_cat + a - 1), y_k_occurances_count + a + b - 2))
     return np.array(results)
-            
+
 
 def p_y_x_nb(p_y, p_x_1_y, X):
     """
