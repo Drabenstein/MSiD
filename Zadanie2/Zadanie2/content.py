@@ -94,17 +94,16 @@ def model_selection_knn(X_val, X_train, y_val, y_train, k_values):
     """
     errors = []
     distances = hamming_distance(X_val, X_train)
-    sorted = sort_train_labels_knn(distances, y_train)
+    sorted_labels = sort_train_labels_knn(distances, y_train)
     bestIndex = 0
     minError = np.inf
     for i in range(np.size(k_values)):
-        pyx = p_y_x_knn(sorted, k_values[i])
+        pyx = p_y_x_knn(sorted_labels, k_values[i])
         error = classification_error(pyx, y_val)
         errors.append(error)
         if minError > error:
             minError = error
             bestIndex = i
-    #bestIndex = np.argsort(errors)[0]
     return (minError, k_values[bestIndex], np.array(errors))
 
 
@@ -137,9 +136,9 @@ def estimate_p_x_y_nb(X_train, y_train, a, b):
     for k in range(y_unique_count):
         y_k_occurances = np.equal(y_train, k)
         y_k_occurances_count = np.sum(y_k_occurances)
-        np.apply_along_axis(lambda x_row, cat_mask: np.bitwise_and(x_row,cat_mask), 0, X_array, y_k_occurances)
-        sum_i_cat = np.sum(, 0)
-        results.append(np.divide((sum_i_cat + a - 1), y_k_occurances_count + a + b - 2))
+        y_k_x_1_matrix = np.apply_along_axis(np.bitwise_and, 0, X_array, y_k_occurances)
+        sum_y_k_x_1 = np.sum(y_k_x_1_matrix, 0)
+        results.append(np.divide(sum_y_k_x_1 + a - 1, y_k_occurances_count + a + b - 2))
     return np.array(results)
 
 
