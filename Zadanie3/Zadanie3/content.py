@@ -52,7 +52,14 @@ def gradient_descent(obj_fun, w0, epochs, eta):
         punkt *w*, a *log_values* to lista wartości funkcji celu w każdej
         epoce (lista o długości *epochs*)
     """
-    pass
+    _, grad = obj_fun(w0)
+    w = w0
+    log_values = []
+    for k in range(epochs):
+        w -= eta * grad
+        val, grad = obj_fun(w)
+        log_values.append(val)
+    return w, np.array(log_values)
 
 
 def stochastic_gradient_descent(obj_fun, x_train, y_train, w0, epochs, eta, mini_batch):
@@ -75,7 +82,17 @@ def stochastic_gradient_descent(obj_fun, x_train, y_train, w0, epochs, eta, mini
         punkt *w*, a *log_values* to lista wartości funkcji celu dla całego
         zbioru treningowego w każdej epoce (lista o długości *epochs*)
     """
-    pass
+    M = int(x_train.shape[0] / mini_batch)
+    x_batches = np.vsplit(x_train, M)
+    y_batches = np.vsplit(y_train, M)
+    w = w0
+    log_values = []
+    for k in range(epochs):
+        for m in range(M):
+            val, grad = obj_fun(w, x_batches[m], y_batches[m])
+            w -= eta * grad
+        log_values.append(obj_fun(w, x_train, y_train)[0])
+    return w, np.array(log_values)
 
 
 def regularized_logistic_cost_function(w, x_train, y_train, regularization_lambda):
