@@ -31,7 +31,9 @@ def logistic_cost_function(w, x_train, y_train):
     :return: krotka (log, grad), gdzie *log* to wartość funkcji logistycznej,
         a *grad* jej gradient po parametrach *w* Mx1
     """
-    pass
+    sigma = sigmoid(x_train @ w)
+    cost = -np.log(np.prod(np.abs(sigma + y_train - 1)))
+    return cost / y_train.shape[0], - (x_train.transpose() @ (y_train - sigma)) / y_train.shape[0]
 
 
 def gradient_descent(obj_fun, w0, epochs, eta):
