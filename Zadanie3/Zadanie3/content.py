@@ -125,7 +125,6 @@ def prediction(x, w, theta):
     :return: wektor predykowanych etykiet ze zbioru {0, 1} Nx1
     """
     return np.apply_along_axis(lambda x_row: [1 if sigmoid(w.T @ x_row) >= theta else 0], 1, x)
-    #return np.vectorize(lambda s: s >= theta)(sigmoid(x @ w))
 
 
 def f_measure(y_true, y_pred):
@@ -137,7 +136,10 @@ def f_measure(y_true, y_pred):
     :param y_pred: wektor etykiet predykowanych przed model Nx1
     :return: wartość miary F (F-measure)
     """
-    pass
+    tp = np.count_nonzero(np.logical_and(y_true == 1, y_true == y_pred))
+    fp = np.count_nonzero(np.logical_and(y_true == 0, y_true != y_pred))
+    fn = np.count_nonzero(np.logical_and(y_true == 1, y_true != y_pred))
+    return 2 * tp / (2 * tp + fp + fn)
 
 
 def model_selection(x_train, y_train, x_val, y_val, w0, epochs, eta, mini_batch, lambdas, thetas):
