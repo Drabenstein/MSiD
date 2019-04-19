@@ -107,7 +107,11 @@ def regularized_logistic_cost_function(w, x_train, y_train, regularization_lambd
     :return: krotka (log, grad), gdzie *log* to wartość funkcji logistycznej
         z regularyzacją l2, a *grad* jej gradient po parametrach *w* Mx1
     """
-    pass
+    val, grad = logistic_cost_function(w, x_train, y_train)
+    regularization = np.square(np.linalg.norm(w[1:]))
+    w_zeroed_free_term = np.zeros_like(w)
+    w_zeroed_free_term[1:] = w[1:]
+    return np.array(val + regularization_lambda / 2 * regularization), grad + regularization_lambda * w_zeroed_free_term
 
 
 def prediction(x, w, theta):
