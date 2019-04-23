@@ -85,7 +85,7 @@ def stochastic_gradient_descent(obj_fun, x_train, y_train, w0, epochs, eta, mini
     M = int(x_train.shape[0] / mini_batch)
     x_batches = np.vsplit(x_train, M)
     y_batches = np.vsplit(y_train, M)
-    w = w0
+    w = np.copy(w0)
     log_values = []
     for k in range(epochs):
         for m in range(M):
@@ -108,9 +108,9 @@ def regularized_logistic_cost_function(w, x_train, y_train, regularization_lambd
         z regularyzacją l2, a *grad* jej gradient po parametrach *w* Mx1
     """
     val, grad = logistic_cost_function(w, x_train, y_train)
-    regularization = np.square(np.linalg.norm(w[1:]))
-    w_zeroed_free_term = np.zeros_like(w)
-    w_zeroed_free_term[1:] = w[1:]
+    regularization = np.square(np.linalg.norm(w[range(1, w.shape[0])]))
+    w_zeroed_free_term = w[range(w.shape[0])]
+    w_zeroed_free_term[0] = 0
     return np.array(val + regularization_lambda / 2 * regularization), grad + regularization_lambda * w_zeroed_free_term
 
 
@@ -167,4 +167,18 @@ def model_selection(x_train, y_train, x_val, y_val, w0, epochs, eta, mini_batch,
         *w* to parametry najlepszego modelu, a *F* to macierz wartości miary F
         dla wszystkich par *(lambda, theta)* #lambda x #theta
     """
-    pass
+    f_values = []
+    best_f = -1
+    for regularization_lambda in lambdas:
+        w, _ = stochastic_gradient_descent(lambda w, x, y: regularized_logistic_cost_function(w, x, y, regularization_lambda), x_train, y_train, w0, epochs, eta, mini_batch)
+        part_f_values = []
+        for theta in thetas:
+            f = f_measure(y_val, prediction(x_val, w, theta))
+            part_f_values.append(f)
+            if f > best_f:
+                best_f = f
+                best_lambda = regularization_lambda
+                best_theta = theta
+                best_w = w
+        f_values.append(part_f_values)
+    return np.array(best_lambda), np.array(best_theta), np.array(best_w), np.array(f_values)
