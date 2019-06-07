@@ -10,7 +10,7 @@ def learn_sgd(x_train, y_train, x_val, y_val):
     best_iter = 100
     etas = [0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001]
     for eta in etas:
-        model = SGDClassifier(loss="hinge", alpha=eta, learning_rate='optimal', n_jobs=-1, eta0=eta, max_iter=300, warm_start=True)
+        model = SGDClassifier(loss="log", learning_rate='constant', n_jobs=-1, eta0=eta, max_iter=300)
         model.fit(x_train, y_train)
         y_predicted = model.predict(x_val)
         fit = classification_error(y_predicted, y_val)
