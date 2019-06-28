@@ -3,7 +3,7 @@ from utilities import classification_error
 from file_operations import read_model
 
 def predict(X):
-    model = read_model('models/sgd/0.001_0.7023888888888888.pkl')
+    model = read_model('models/sgd/0.001_0.7024444444444444.pkl')
     w = model['w']
     b = model['b']
     pred = X @ w.T + b
